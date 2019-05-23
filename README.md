@@ -4,7 +4,7 @@ Generate quest lua from live eqlog
 
 usage: eqlog2lua.exe <file>
 
-e.g. eqloglua.exe eqlog_Player_Server.txt
+e.g. eqlog2lua.exe eqlog_Player_Server.txt
 
 There is two steps to the process.
 First, it generates a quests.yml file. This is reloaded any time the program restarts.
@@ -29,3 +29,5 @@ Talya Darkfall:
       and [goblins].
 
 ```
+
+second step is not yet coded. Point is to generate cookie cutter code for lua stuff to bootstrap process
