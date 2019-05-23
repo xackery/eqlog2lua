@@ -1,6 +1,7 @@
 # eqlog2lua
 Generate quest lua from live eqlog
 
+[Download is found in releases](https://github.com/xackery/eqlog2lua/releases)
 
 usage: eqlog2lua.exe <file>
 
