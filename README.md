@@ -16,7 +16,7 @@ example quests.yml:
 ```yaml
 Talya Darkfall:
   npcname: Talya Darkfall
-  currentzone: ""
+  currentzone: The Lavastorm Mountains
   conversation:
     creatures: I was under disguise in Neriak when Tani N`Mar tasked me out with this
       detail  If I had refused it I might not have escaped out of Neriak.  I decided
