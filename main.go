@@ -236,6 +236,7 @@ func doGenerate() (err error) {
 			fmt.Println("failed to write", fileNPCName, err.Error())
 			continue
 		}
+		fmt.Println("Created", fileNPCName)
 	}
 	return
 }
@@ -243,7 +244,6 @@ func doGenerate() (err error) {
 func doTheySayCleanup(in string) (out string) {
 	chunk := in
 	for {
-		fmt.Println("F:", chunk)
 		if strings.Index(chunk, "[") < 0 && strings.Index(chunk, "]") < 0 { //bracketed term
 			break
 		}
@@ -251,8 +251,6 @@ func doTheySayCleanup(in string) (out string) {
 		out += chunk[0:strings.Index(chunk, "[")]
 		out += fmt.Sprintf("[\".. eq.say_link(\"%s\") ..\"]", chunk[strings.Index(chunk, "[")+1:strings.Index(chunk, "]")])
 		chunk = chunk[strings.Index(chunk, "]")+1:]
-		fmt.Println("out", out)
-		fmt.Println("F afteR:", chunk)
 	}
 	out = strings.Replace(out, "Xackery", `".. e.other:GetName() .."`, -1)
 	out = strings.Replace(out, "Dark Elf", `".. e.other:GetRace() .."`, -1)
