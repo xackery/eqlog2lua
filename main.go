@@ -61,6 +61,10 @@ func run() (err error) {
 
 	filePath := os.Args[1]
 	playerName := ""
+	if strings.ToLower(filePath) == "-generate" {
+		err = doGenerate()
+		return
+	}
 
 	fi, err = os.Stat(filePath)
 	if err != nil {
@@ -190,5 +194,75 @@ func saveYaml() (err error) {
 		err = errors.Wrap(err, "Failed to write quests file")
 		return
 	}
+	return
+}
+
+func doGenerate() (err error) {
+
+	for _, d := range dialogs {
+		if len(d.Conversation) == 0 {
+			continue
+		}
+
+		data := "function event_say(e)"
+		fileNPCName := doFileNpcName(d.NPCName)
+		_, err = os.Stat(fileNPCName)
+		if err == nil {
+			fmt.Println("skipping", fileNPCName, "already exists")
+			continue
+		}
+
+		fmt.Println("generating", fileNPCName)
+		isFirstNote := true
+		for youSay, theySay := range d.Conversation {
+			if isFirstNote {
+				data += fmt.Sprintf("\n	if(e.message:findi(\"%s\")) then", youSay)
+				isFirstNote = false
+			} else {
+				data += fmt.Sprintf("\n	elseif(e.message:findi(\"%s\")) then", youSay)
+			}
+			if strings.Index(theySay, "You have been assigned the task") == 0 {
+				data += fmt.Sprintf("\n		--%s", theySay)
+				data += fmt.Sprintf("\n		e.self:Say(\"Unfortunately, I do not yet have this task to give you.\");")
+			} else {
+				data += fmt.Sprintf("\n		e.self:Say(\"%s\");", doTheySayCleanup(theySay))
+			}
+		}
+
+		data += "\n	end"
+		data += "\nend"
+		err = ioutil.WriteFile(fileNPCName, []byte(data), 0744)
+		if err != nil {
+			fmt.Println("failed to write", fileNPCName, err.Error())
+			continue
+		}
+	}
+	return
+}
+
+func doTheySayCleanup(in string) (out string) {
+	chunk := in
+	for {
+		fmt.Println("F:", chunk)
+		if strings.Index(chunk, "[") < 0 && strings.Index(chunk, "]") < 0 { //bracketed term
+			break
+		}
+
+		out += chunk[0:strings.Index(chunk, "[")]
+		out += fmt.Sprintf("[\".. eq.say_link(\"%s\") ..\"]", chunk[strings.Index(chunk, "[")+1:strings.Index(chunk, "]")])
+		chunk = chunk[strings.Index(chunk, "]")+1:]
+		fmt.Println("out", out)
+		fmt.Println("F afteR:", chunk)
+	}
+	out = strings.Replace(out, "Xackery", `".. e.other:GetName() .."`, -1)
+	out = strings.Replace(out, "Dark Elf", `".. e.other:GetRace() .."`, -1)
+	return
+}
+
+func doFileNpcName(npcName string) (fileNpcName string) {
+	fileNpcName = "#" + strings.Replace(npcName, " ", "_", -1)
+	fileNpcName = strings.Replace(fileNpcName, "`", "-", -1)
+
+	fileNpcName += ".lua"
 	return
 }
